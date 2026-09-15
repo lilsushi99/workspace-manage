@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ProviderController as AdminProviderController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\MarketingController;
@@ -24,6 +25,15 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+    // Admin Provider Routes
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('/providers', [AdminProviderController::class, 'index'])->name('providers.index');
+        Route::get('/providers/{provider}/edit', [AdminProviderController::class, 'edit'])->name('providers.edit');
+        Route::put('/providers/{provider}', [AdminProviderController::class, 'update'])->name('providers.update');
+        Route::post('/providers/{provider}/test', [AdminProviderController::class, 'testConnection'])->name('providers.test');
+        Route::post('/providers/{provider}/sync', [AdminProviderController::class, 'sync'])->name('providers.sync');
+    });
 
     // Onboarding Wizard Routes (Incomplete onboarding only)
     Route::middleware([EnsureOnboardingIsIncomplete::class])->prefix('onboarding')->name('onboarding.')->group(function () {
