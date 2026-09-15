@@ -175,6 +175,8 @@ class DatabaseSeeder extends Seeder
                 'status' => 'active',
                 'currency' => 'USD',
                 'timezone' => 'UTC',
+                'onboarding_step' => 'complete',
+                'onboarding_completed_at' => now(),
             ]);
             $tenants[] = $tenant;
 
@@ -449,7 +451,7 @@ class DatabaseSeeder extends Seeder
             'action' => 'system_seed',
             'entity_type' => 'Database',
             'entity_id' => 1,
-            'new_values' => ['message' => 'Database seeded with Phase 1 realistic data'],
+            'new_values' => ['message' => 'Database seeded with Phase 1 & 2 realistic data'],
             'ip_address' => '127.0.0.1',
             'user_agent' => 'CLI/Seeder',
         ]);
