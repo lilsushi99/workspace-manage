@@ -16,7 +16,21 @@ class Tenant extends Model
         'status',
         'currency',
         'timezone',
+        'onboarding_step',
+        'onboarding_completed_at',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'onboarding_completed_at' => 'datetime',
+        ];
+    }
+
+    public function isOnboardingComplete(): bool
+    {
+        return $this->onboarding_completed_at !== null;
+    }
 
     public function owner()
     {
