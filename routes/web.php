@@ -1,10 +1,13 @@
 <?php
 
 use App\Http\Controllers\Admin\ProviderController as AdminProviderController;
+use App\Http\Controllers\Admin\ServiceController as AdminServiceController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\MarketingController;
 use App\Http\Controllers\OnboardingController;
+use App\Http\Controllers\Reseller\ServiceController as ResellerServiceController;
+use App\Http\Controllers\StorefrontController;
 use App\Http\Middleware\EnsureOnboardingIsComplete;
 use App\Http\Middleware\EnsureOnboardingIsIncomplete;
 use Illuminate\Support\Facades\Route;
@@ -16,6 +19,10 @@ Route::get('/pricing', [MarketingController::class, 'pricing'])->name('marketing
 Route::get('/resources', [MarketingController::class, 'resources'])->name('marketing.resources');
 Route::get('/contact', [MarketingController::class, 'contact'])->name('marketing.contact');
 
+// Public Storefront Routes
+Route::get('/store/{username}', [StorefrontController::class, 'show'])->name('storefront.show');
+Route::post('/store/{username}/summary', [StorefrontController::class, 'calculateSummary'])->name('storefront.summary');
+
 Route::middleware('guest')->group(function () {
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
@@ -26,13 +33,27 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-    // Admin Provider Routes
+    // Admin Provider & Service Routes
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/providers', [AdminProviderController::class, 'index'])->name('providers.index');
         Route::get('/providers/{provider}/edit', [AdminProviderController::class, 'edit'])->name('providers.edit');
         Route::put('/providers/{provider}', [AdminProviderController::class, 'update'])->name('providers.update');
         Route::post('/providers/{provider}/test', [AdminProviderController::class, 'testConnection'])->name('providers.test');
         Route::post('/providers/{provider}/sync', [AdminProviderController::class, 'sync'])->name('providers.sync');
+
+        Route::get('/services', [AdminServiceController::class, 'index'])->name('services.index');
+        Route::get('/services/create', [AdminServiceController::class, 'create'])->name('services.create');
+        Route::post('/services', [AdminServiceController::class, 'store'])->name('services.store');
+        Route::get('/services/{service}/edit', [AdminServiceController::class, 'edit'])->name('services.edit');
+        Route::put('/services/{service}', [AdminServiceController::class, 'update'])->name('services.update');
+    });
+
+    // Reseller Service & Pricing Management (Requires complete onboarding)
+    Route::middleware([EnsureOnboardingIsComplete::class])->prefix('reseller')->name('reseller.')->group(function () {
+        Route::get('/services', [ResellerServiceController::class, 'index'])->name('services.index');
+        Route::post('/services/{service}/toggle', [ResellerServiceController::class, 'toggle'])->name('services.toggle');
+        Route::get('/services/{tenantService}/edit', [ResellerServiceController::class, 'edit'])->name('services.edit');
+        Route::put('/services/{tenantService}', [ResellerServiceController::class, 'update'])->name('services.update');
     });
 
     // Onboarding Wizard Routes (Incomplete onboarding only)
