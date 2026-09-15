@@ -308,12 +308,11 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        // 6. Customers, Orders, Payments & Financial Records for each Tenant
+        // 6. Customers, Orders, Payments & Financial Records
         foreach ($tenants as $idx => $tenant) {
             $store = $stores[$idx];
             $wallet = $wallets[$idx];
 
-            // Bank Account
             $bank = BankAccount::create([
                 'tenant_id' => $tenant->id,
                 'bank_code' => '058',
@@ -325,7 +324,6 @@ class DatabaseSeeder extends Seeder
                 'is_default' => true,
             ]);
 
-            // Customers
             for ($c = 1; $c <= 3; $c++) {
                 $customer = Customer::create([
                     'tenant_id' => $tenant->id,
@@ -337,7 +335,6 @@ class DatabaseSeeder extends Seeder
                     'status' => 'active',
                 ]);
 
-                // Orders
                 $service = $internalServices[$c % count($internalServices)];
                 $orderNum = 'ORD-' . strtoupper(Str::random(8));
 
@@ -402,7 +399,6 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
 
-            // Withdrawal
             $withdrawal = Withdrawal::create([
                 'tenant_id' => $tenant->id,
                 'wallet_id' => $wallet->id,
@@ -418,30 +414,206 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // 7. CMS Content
+        // 7. CMS Marketing Content Seed Data
         $heroSection = ContentSection::create([
             'key' => 'hero',
-            'title' => 'Start Your SMM Reseller Empire Today',
-            'subtitle' => 'Turnkey Social Media Reselling SaaS',
-            'description' => 'Launch your custom-branded SMM store in minutes. Seamless provider sync, built-in payments, and multi-tenant ledger.',
+            'title' => 'Build your own social media reseller business.',
+            'subtitle' => 'Turnkey Multi-Tenant SMM SaaS Platform',
+            'description' => 'Dowa lets entrepreneurs and agencies launch, brand, and operate their own social media growth storefronts with automated provider fulfillment and profit ledger.',
             'status' => 'active',
         ]);
 
         ContentItem::create([
             'section_id' => $heroSection->id,
-            'title' => 'Instant Storefront Setup',
-            'description' => 'Custom domains, tailored branding, and automated order processing.',
-            'icon' => 'storefront',
+            'title' => 'David Boost',
+            'description' => 'Agency Founder - BoostMedia Empire',
+            'icon' => 'david',
             'sort_order' => 1,
             'status' => 'active',
         ]);
 
         ContentItem::create([
             'section_id' => $heroSection->id,
-            'title' => 'Automated Profit Ledger',
-            'description' => 'Track costs, set markup pricing, and withdraw profits smoothly.',
-            'icon' => 'wallet',
+            'title' => 'Elena Viral',
+            'description' => 'Growth Lead - ViralSocial Hub',
+            'icon' => 'elena',
             'sort_order' => 2,
+            'status' => 'active',
+        ]);
+
+        // Social Proof Section
+        $proofSection = ContentSection::create([
+            'key' => 'social_proof',
+            'title' => 'Supported Social Media Networks',
+            'subtitle' => 'Integrated with major global social platforms',
+            'description' => 'Deliver engagement services across top social media channels.',
+            'status' => 'active',
+        ]);
+
+        $platforms = [
+            ['title' => 'Instagram', 'icon' => 'instagram'],
+            ['title' => 'TikTok', 'icon' => 'tiktok'],
+            ['title' => 'YouTube', 'icon' => 'youtube'],
+            ['title' => 'Facebook', 'icon' => 'facebook'],
+            ['title' => 'X (Twitter)', 'icon' => 'x'],
+            ['title' => 'Telegram', 'icon' => 'telegram'],
+        ];
+
+        foreach ($platforms as $idx => $p) {
+            ContentItem::create([
+                'section_id' => $proofSection->id,
+                'title' => $p['title'],
+                'icon' => $p['icon'],
+                'sort_order' => $idx + 1,
+                'status' => 'active',
+            ]);
+        }
+
+        // Features Section
+        $featuresSection = ContentSection::create([
+            'key' => 'features',
+            'title' => 'Everything you need to run a profitable SMM reseller business.',
+            'subtitle' => 'Complete SaaS Reseller Toolkit',
+            'description' => 'A fully integrated platform providing branded storefronts, custom pricing, payment processing, and automated ledger tracking.',
+            'status' => 'active',
+        ]);
+
+        $featureItems = [
+            [
+                'title' => 'Branded Storefronts',
+                'description' => 'Launch a custom-branded store with custom domain binding and logo customization.',
+                'icon' => 'storefront',
+            ],
+            [
+                'title' => 'Flexible Profit Markups',
+                'description' => 'Choose services from the Dowa catalog and set your custom profit margins.',
+                'icon' => 'calculator',
+            ],
+            [
+                'title' => 'Automated Fulfillment',
+                'description' => 'Orders are automatically routed to upstream SMM providers for instant delivery.',
+                'icon' => 'zap',
+            ],
+            [
+                'title' => 'Customer & Order Management',
+                'description' => 'Keep client accounts, order statuses, and historical receipts organized in real-time.',
+                'icon' => 'users',
+            ],
+            [
+                'title' => 'Integrated Profit Ledger',
+                'description' => 'Monitor revenue, profit per order, wallet balances, and request direct bank withdrawals.',
+                'icon' => 'wallet',
+            ],
+            [
+                'title' => 'Multi-Tenant Isolation',
+                'description' => 'Enterprise-grade server-side security ensuring your client data remains strictly private.',
+                'icon' => 'shield',
+            ],
+        ];
+
+        foreach ($featureItems as $idx => $f) {
+            ContentItem::create([
+                'section_id' => $featuresSection->id,
+                'title' => $f['title'],
+                'description' => $f['description'],
+                'icon' => $f['icon'],
+                'sort_order' => $idx + 1,
+                'status' => 'active',
+            ]);
+        }
+
+        // How It Works Section
+        $howSection = ContentSection::create([
+            'key' => 'how_it_works',
+            'title' => 'Launch your SMM business in 5 simple steps.',
+            'subtitle' => 'Turnkey Setup Process',
+            'description' => 'Go from account registration to receiving customer orders in minutes.',
+            'status' => 'active',
+        ]);
+
+        $howSteps = [
+            ['title' => '1. Register Account', 'description' => 'Create your Dowa reseller account in seconds.'],
+            ['title' => '2. Select Services', 'description' => 'Choose engagement services from Instagram, TikTok, YouTube & more.'],
+            ['title' => '3. Configure Pricing', 'description' => 'Set your custom percentage or fixed profit markups.'],
+            ['title' => '4. Custom Branding', 'description' => 'Name your store, upload your logo, and generate your store URL.'],
+            ['title' => '5. Receive Orders & Earn', 'description' => 'Share your storefront link, accept client orders, and withdraw profits.'],
+        ];
+
+        foreach ($howSteps as $idx => $h) {
+            ContentItem::create([
+                'section_id' => $howSection->id,
+                'title' => $h['title'],
+                'description' => $h['description'],
+                'sort_order' => $idx + 1,
+                'status' => 'active',
+            ]);
+        }
+
+        // Testimonials Section
+        $testiSection = ContentSection::create([
+            'key' => 'testimonials',
+            'title' => 'Trusted by over 1,000+ digital resellers and agencies.',
+            'subtitle' => 'Reseller Success Stories',
+            'description' => 'See how resellers build steady recurring revenue with Dowa.',
+            'status' => 'active',
+        ]);
+
+        $testimonials = [
+            [
+                'title' => 'David Boost',
+                'description' => 'Dowa allowed me to scale my agency services effortlessly. Automated order routing saves me 20 hours every week.',
+                'icon' => 'BoostMedia Empire',
+            ],
+            [
+                'title' => 'Elena Viral',
+                'description' => 'The custom markup feature is incredible. I set a 40% margin across my services and track my wallet profit ledger in real-time.',
+                'icon' => 'ViralSocial Agency',
+            ],
+        ];
+
+        foreach ($testimonials as $idx => $t) {
+            ContentItem::create([
+                'section_id' => $testiSection->id,
+                'title' => $t['title'],
+                'description' => $t['description'],
+                'icon' => $t['icon'],
+                'sort_order' => $idx + 1,
+                'status' => 'active',
+            ]);
+        }
+
+        // Statistics Section
+        $statsSection = ContentSection::create([
+            'key' => 'statistics',
+            'title' => 'Platform Scale & Impact',
+            'subtitle' => 'Platform Growth Metrics',
+            'description' => 'Proven reliability across millions of social engagements.',
+            'status' => 'active',
+        ]);
+
+        $stats = [
+            ['title' => '5K+', 'description' => 'Orders Processed'],
+            ['title' => '1K+', 'description' => 'Active Resellers'],
+            ['title' => '20+', 'description' => 'Growth Services'],
+            ['title' => '99.9%', 'description' => 'Uptime Guarantee'],
+        ];
+
+        foreach ($stats as $idx => $s) {
+            ContentItem::create([
+                'section_id' => $statsSection->id,
+                'title' => $s['title'],
+                'description' => $s['description'],
+                'sort_order' => $idx + 1,
+                'status' => 'active',
+            ]);
+        }
+
+        // Final CTA Section
+        ContentSection::create([
+            'key' => 'final_cta',
+            'title' => 'Ready to build your own social media store?',
+            'subtitle' => 'Start Your Empire Today',
+            'description' => 'Launch your branded storefront in minutes with Dowa turnkey reseller technology.',
             'status' => 'active',
         ]);
 
@@ -451,7 +623,7 @@ class DatabaseSeeder extends Seeder
             'action' => 'system_seed',
             'entity_type' => 'Database',
             'entity_id' => 1,
-            'new_values' => ['message' => 'Database seeded with Phase 1 & 2 realistic data'],
+            'new_values' => ['message' => 'Database seeded with Phase 1, 2 & 3 CMS marketing data'],
             'ip_address' => '127.0.0.1',
             'user_agent' => 'CLI/Seeder',
         ]);

@@ -2,14 +2,18 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\MarketingController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Middleware\EnsureOnboardingIsComplete;
 use App\Http\Middleware\EnsureOnboardingIsIncomplete;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Public Marketing Routes
+Route::get('/', [MarketingController::class, 'index'])->name('home');
+Route::get('/features', [MarketingController::class, 'features'])->name('marketing.features');
+Route::get('/pricing', [MarketingController::class, 'pricing'])->name('marketing.pricing');
+Route::get('/resources', [MarketingController::class, 'resources'])->name('marketing.resources');
+Route::get('/contact', [MarketingController::class, 'contact'])->name('marketing.contact');
 
 Route::middleware('guest')->group(function () {
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
