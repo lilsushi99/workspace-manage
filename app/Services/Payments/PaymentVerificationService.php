@@ -6,6 +6,7 @@ use App\Jobs\SubmitOrderToProviderJob;
 use App\Models\Order;
 use App\Models\OrderStatusHistory;
 use App\Models\Payment;
+use App\Services\Finance\WalletLedgerService;
 use App\Services\Payments\Contracts\PaymentGatewayInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -13,10 +14,12 @@ use Illuminate\Support\Facades\Log;
 class PaymentVerificationService
 {
     protected PaymentGatewayInterface $gateway;
+    protected WalletLedgerService $ledger;
 
-    public function __construct(PaymentGatewayInterface $gateway)
+    public function __construct(PaymentGatewayInterface $gateway, WalletLedgerService $ledger)
     {
         $this->gateway = $gateway;
+        $this->ledger = $ledger;
     }
 
     public function verifyAndConfirmPayment(string $transactionId, ?Payment $payment = null): bool
@@ -47,7 +50,7 @@ class PaymentVerificationService
             $order = Order::where('id', $payment->order_id)->lockForUpdate()->first();
 
             // Idempotency check: if already successful, skip
-            if ($payment->status === 'successful' && $order->payment_status === 'paid') {
+            if ($payment->status === 'successful' && $order && $order->payment_status === 'paid') {
                 return true;
             }
 
@@ -93,6 +96,9 @@ class PaymentVerificationService
                     'source' => 'flutterwave_verification',
                     'message' => 'Payment verified and order marked paid.',
                 ]);
+
+                // Record wallet earning transaction
+                $this->ledger->recordOrderEarning($order);
 
                 $orderToDispatch = $order;
             }

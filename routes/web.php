@@ -3,13 +3,16 @@
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProviderController as AdminProviderController;
 use App\Http\Controllers\Admin\ServiceController as AdminServiceController;
+use App\Http\Controllers\Admin\WithdrawalController as AdminWithdrawalController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\MarketingController;
 use App\Http\Controllers\OnboardingController;
+use App\Http\Controllers\Reseller\BankAccountController as ResellerBankAccountController;
 use App\Http\Controllers\Reseller\OrderController as ResellerOrderController;
 use App\Http\Controllers\Reseller\ServiceController as ResellerServiceController;
+use App\Http\Controllers\Reseller\WithdrawalController as ResellerWithdrawalController;
 use App\Http\Controllers\StorefrontController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Middleware\EnsureOnboardingIsComplete;
@@ -60,9 +63,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
         Route::post('/orders/{order}/retry', [AdminOrderController::class, 'retry'])->name('orders.retry');
+
+        Route::get('/withdrawals', [AdminWithdrawalController::class, 'index'])->name('withdrawals.index');
+        Route::get('/withdrawals/{withdrawal}', [AdminWithdrawalController::class, 'show'])->name('withdrawals.show');
+        Route::post('/withdrawals/{withdrawal}/approve', [AdminWithdrawalController::class, 'approve'])->name('withdrawals.approve');
+        Route::post('/withdrawals/{withdrawal}/reject', [AdminWithdrawalController::class, 'reject'])->name('withdrawals.reject');
     });
 
-    // Reseller Service & Pricing Management (Requires complete onboarding)
+    // Reseller Management Routes (Requires complete onboarding)
     Route::middleware([EnsureOnboardingIsComplete::class])->prefix('reseller')->name('reseller.')->group(function () {
         Route::get('/services', [ResellerServiceController::class, 'index'])->name('services.index');
         Route::post('/services/{service}/toggle', [ResellerServiceController::class, 'toggle'])->name('services.toggle');
@@ -71,6 +79,15 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/orders', [ResellerOrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [ResellerOrderController::class, 'show'])->name('orders.show');
+
+        Route::get('/banks', [ResellerBankAccountController::class, 'index'])->name('banks.index');
+        Route::get('/banks/create', [ResellerBankAccountController::class, 'create'])->name('banks.create');
+        Route::post('/banks', [ResellerBankAccountController::class, 'store'])->name('banks.store');
+        Route::post('/banks/{bankAccount}/default', [ResellerBankAccountController::class, 'setDefault'])->name('banks.default');
+
+        Route::get('/wallet', [ResellerWithdrawalController::class, 'wallet'])->name('wallet.index');
+        Route::get('/wallet/withdraw', [ResellerWithdrawalController::class, 'create'])->name('wallet.withdraw');
+        Route::post('/wallet/withdraw', [ResellerWithdrawalController::class, 'store'])->name('wallet.withdraw.store');
     });
 
     // Onboarding Wizard Routes (Incomplete onboarding only)

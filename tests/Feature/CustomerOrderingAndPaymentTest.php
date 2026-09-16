@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Services\Payments\PaymentVerificationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 class CustomerOrderingAndPaymentTest extends TestCase
@@ -127,6 +128,8 @@ class CustomerOrderingAndPaymentTest extends TestCase
 
     public function test_flutterwave_webhook_verifies_and_confirms_payment_idempotently()
     {
+        Queue::fake();
+
         $customer = Customer::create([
             'tenant_id' => $this->tenantA->id,
             'first_name' => 'John',
