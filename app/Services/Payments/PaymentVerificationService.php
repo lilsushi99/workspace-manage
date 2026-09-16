@@ -2,6 +2,7 @@
 
 namespace App\Services\Payments;
 
+use App\Jobs\SubmitOrderToProviderJob;
 use App\Models\Order;
 use App\Models\OrderStatusHistory;
 use App\Models\Payment;
@@ -39,7 +40,9 @@ class PaymentVerificationService
             return false;
         }
 
-        return DB::transaction(function () use ($payment, $verifiedData, $transactionId) {
+        $orderToDispatch = null;
+
+        $confirmed = DB::transaction(function () use ($payment, $verifiedData, $transactionId, &$orderToDispatch) {
             $payment = Payment::where('id', $payment->id)->lockForUpdate()->first();
             $order = Order::where('id', $payment->order_id)->lockForUpdate()->first();
 
@@ -90,9 +93,17 @@ class PaymentVerificationService
                     'source' => 'flutterwave_verification',
                     'message' => 'Payment verified and order marked paid.',
                 ]);
+
+                $orderToDispatch = $order;
             }
 
             return true;
         });
+
+        if ($confirmed && $orderToDispatch) {
+            SubmitOrderToProviderJob::dispatch($orderToDispatch);
+        }
+
+        return $confirmed;
     }
 }

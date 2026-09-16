@@ -73,34 +73,36 @@
             <div>
                 <div class="order-panel">
                     <h3 style="margin-bottom: 1rem; color: #064E3B;">Order Summary</h3>
-                    <div class="form-group">
-                        <label>Selected Service</label>
-                        <input type="text" id="selected_service_name" class="form-control" value="Select a service on left" readonly style="background: #F3F4F6;">
-                        <input type="hidden" id="selected_tenant_service_id">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Target URL / Handle</label>
-                        <input type="text" id="target_input" class="form-control" placeholder="e.g. https://instagram.com/p/123" oninput="recalculateSummary()">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Quantity</label>
-                        <input type="number" id="quantity_input" class="form-control" value="1000" min="1" oninput="recalculateSummary()">
-                    </div>
-
-                    <div class="summary-box">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                            <span>Rate / 1k:</span>
-                            <strong id="summary_rate">$0.00</strong>
+                    <form method="GET" action="{{ route('storefront.checkout', $tenant->owner ? $tenant->owner->username : $store->slug) }}">
+                        <div class="form-group">
+                            <label>Selected Service</label>
+                            <input type="text" id="selected_service_name" class="form-control" value="Select a service on left" readonly style="background: #F3F4F6;">
+                            <input type="hidden" id="selected_tenant_service_id" name="tenant_service_id" required>
                         </div>
-                        <div style="display: flex; justify-content: space-between; font-size: 1.1rem; color: #059669;">
-                            <span>Total Price:</span>
-                            <strong id="summary_total">$0.00</strong>
-                        </div>
-                    </div>
 
-                    <button type="button" class="btn-order" onclick="alert('Order preparation complete! Payment processing available in Phase 6.')">Continue to Checkout &rarr;</button>
+                        <div class="form-group">
+                            <label>Target URL / Handle</label>
+                            <input type="text" name="target" id="target_input" class="form-control" placeholder="e.g. https://instagram.com/p/123" required oninput="recalculateSummary()">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Quantity</label>
+                            <input type="number" name="quantity" id="quantity_input" class="form-control" value="1000" min="1" required oninput="recalculateSummary()">
+                        </div>
+
+                        <div class="summary-box">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span>Rate / 1k:</span>
+                                <strong id="summary_rate">$0.00</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 1.1rem; color: #059669;">
+                                <span>Total Price:</span>
+                                <strong id="summary_total">$0.00</strong>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-order">Proceed to Checkout &rarr;</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -124,7 +126,6 @@
 
         function recalculateSummary() {
             const serviceId = document.getElementById('selected_tenant_service_id').value;
-            const target = document.getElementById('target_input').value;
             const qty = parseInt(document.getElementById('quantity_input').value) || 0;
 
             if (!serviceId) {

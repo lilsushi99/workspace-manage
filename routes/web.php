@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProviderController as AdminProviderController;
 use App\Http\Controllers\Admin\ServiceController as AdminServiceController;
 use App\Http\Controllers\Auth\LoginController;
@@ -7,6 +8,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\MarketingController;
 use App\Http\Controllers\OnboardingController;
+use App\Http\Controllers\Reseller\OrderController as ResellerOrderController;
 use App\Http\Controllers\Reseller\ServiceController as ResellerServiceController;
 use App\Http\Controllers\StorefrontController;
 use App\Http\Controllers\WebhookController;
@@ -41,7 +43,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-    // Admin Provider & Service Routes
+    // Admin Routes
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/providers', [AdminProviderController::class, 'index'])->name('providers.index');
         Route::get('/providers/{provider}/edit', [AdminProviderController::class, 'edit'])->name('providers.edit');
@@ -54,6 +56,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/services', [AdminServiceController::class, 'store'])->name('services.store');
         Route::get('/services/{service}/edit', [AdminServiceController::class, 'edit'])->name('services.edit');
         Route::put('/services/{service}', [AdminServiceController::class, 'update'])->name('services.update');
+
+        Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
+        Route::post('/orders/{order}/retry', [AdminOrderController::class, 'retry'])->name('orders.retry');
     });
 
     // Reseller Service & Pricing Management (Requires complete onboarding)
@@ -62,6 +68,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/services/{service}/toggle', [ResellerServiceController::class, 'toggle'])->name('services.toggle');
         Route::get('/services/{tenantService}/edit', [ResellerServiceController::class, 'edit'])->name('services.edit');
         Route::put('/services/{tenantService}', [ResellerServiceController::class, 'update'])->name('services.update');
+
+        Route::get('/orders', [ResellerOrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{order}', [ResellerOrderController::class, 'show'])->name('orders.show');
     });
 
     // Onboarding Wizard Routes (Incomplete onboarding only)
