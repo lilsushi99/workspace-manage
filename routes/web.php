@@ -4,10 +4,12 @@ use App\Http\Controllers\Admin\ProviderController as AdminProviderController;
 use App\Http\Controllers\Admin\ServiceController as AdminServiceController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\MarketingController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\Reseller\ServiceController as ResellerServiceController;
 use App\Http\Controllers\StorefrontController;
+use App\Http\Controllers\WebhookController;
 use App\Http\Middleware\EnsureOnboardingIsComplete;
 use App\Http\Middleware\EnsureOnboardingIsIncomplete;
 use Illuminate\Support\Facades\Route;
@@ -22,6 +24,12 @@ Route::get('/contact', [MarketingController::class, 'contact'])->name('marketing
 // Public Storefront Routes
 Route::get('/store/{username}', [StorefrontController::class, 'show'])->name('storefront.show');
 Route::post('/store/{username}/summary', [StorefrontController::class, 'calculateSummary'])->name('storefront.summary');
+Route::get('/store/{username}/checkout', [CheckoutController::class, 'showCheckout'])->name('storefront.checkout');
+Route::post('/store/{username}/checkout', [CheckoutController::class, 'processCheckout'])->name('storefront.checkout.process');
+Route::get('/store/{username}/payment-status', [StorefrontController::class, 'paymentStatus'])->name('storefront.payment-status');
+
+// Webhook Endpoints
+Route::post('/webhooks/flutterwave', [WebhookController::class, 'handleFlutterwave'])->name('webhooks.flutterwave');
 
 Route::middleware('guest')->group(function () {
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');

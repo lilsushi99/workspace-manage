@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use App\Models\Store;
 use App\Models\Tenant;
 use App\Models\TenantService;
 use App\Models\User;
+use App\Services\Payments\PaymentVerificationService;
 use Illuminate\Http\Request;
 
 class StorefrontController extends Controller
@@ -82,6 +84,36 @@ class StorefrontController extends Controller
             'unit_price_per_k' => $unitPrice,
             'total_price' => $totalPrice,
             'currency' => $tenant->currency ?: 'USD',
+        ]);
+    }
+
+    public function paymentStatus(Request $request, string $username)
+    {
+        $user = User::where('username', $username)->first();
+        $tenant = $user && $user->tenant ? $user->tenant : Store::where('slug', $username)->firstOrFail()->tenant;
+        $store = $tenant->stores()->firstOrFail();
+
+        $reference = $request->query('reference');
+        $transactionId = $request->query('transaction_id') ?: $request->query('transaction_id');
+
+        $order = Order::where('tenant_id', $tenant->id)
+            ->where('order_number', $reference)
+            ->with(['service', 'payments'])
+            ->first();
+
+        // Attempt server-side verification if transaction_id provided and order unpaid
+        if ($order && $order->payment_status !== 'paid' && $transactionId) {
+            /** @var PaymentVerificationService $verifier */
+            $verifier = app(PaymentVerificationService::class);
+            $verifier->verifyAndConfirmPayment($transactionId, $order->payments->first());
+            $order->refresh();
+        }
+
+        return view('storefront.payment-status', [
+            'tenant' => $tenant,
+            'store' => $store,
+            'order' => $order,
+            'username' => $username,
         ]);
     }
 }
