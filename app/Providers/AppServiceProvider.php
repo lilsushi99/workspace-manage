@@ -3,10 +3,6 @@
 namespace App\Providers;
 
 use App\Models\User;
-use App\Services\Bank\Adapters\FlutterwaveBankVerificationAdapter;
-use App\Services\Bank\Contracts\BankVerificationInterface;
-use App\Services\Payments\Adapters\FlutterwavePaymentGateway;
-use App\Services\Payments\Contracts\PaymentGatewayInterface;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -17,8 +13,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(PaymentGatewayInterface::class, FlutterwavePaymentGateway::class);
-        $this->app->bind(BankVerificationInterface::class, FlutterwaveBankVerificationAdapter::class);
+        //
     }
 
     /**
